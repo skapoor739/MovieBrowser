@@ -16,3 +16,16 @@ extension UIView
         self.addSubview(view)
     }
 }
+
+extension UIViewController
+{
+    func showAlert(title: String, message: String)
+    {
+        let alertCon = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+        
+        alertCon.addAction(action)
+        self.present(alertCon, animated: true, completion: nil)
+    }
+    
+}

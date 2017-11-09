@@ -8,14 +8,22 @@
 
 import UIKit
 
-class MovieFeedVC: UIViewController
+class MovieFeedVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout
 {
+    private var _movies: [Movie] = []
+    
+    private struct Identifiers
+    {
+        static let movieCellID = "movieCellID"
+    }
     
     private lazy var collectionView: UICollectionView =
     {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .blue
+        cv.backgroundColor = .white
+        cv.delegate = self
+        cv.dataSource = self
         return cv
     }()
     
@@ -24,6 +32,15 @@ class MovieFeedVC: UIViewController
         super.loadView()
         setupView()
         configureNavItem()
+        registerCells()
+        configureLayout()
+    }
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+        loadMovies()
     }
     
     private func setupView()
@@ -44,6 +61,84 @@ class MovieFeedVC: UIViewController
     private func configureNavItem()
     {
         self.navigationItem.title = "Movie Browser"
+    }
+    
+    private func registerCells()
+    {
+        collectionView.register(MovieCVC.self, forCellWithReuseIdentifier: Identifiers.movieCellID)
+    }
+    
+    private func configureLayout()
+    {
+        guard let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
+        else
+        {
+            return
+        }
+        
+        layout.scrollDirection = .vertical
+    }
+    private func loadMovies()
+    {
+        NetworkEngine.sharedEngine.getMovies(pageID: 1)
+        { [weak weakSelf = self] (movies, error) in
+            
+            guard let opSelf = weakSelf
+            else
+            {
+                return
+            }
+            
+            if let error = error
+            {
+                let message = NetworkError.getErrorMessage(type: error)
+                opSelf.showAlert(title: "Error", message: message)
+            }
+            else
+            {
+                if !movies.isEmpty
+                {
+                    opSelf._movies = movies
+                    opSelf.collectionView.reloadData()
+                }
+                else
+                {
+                    opSelf.showAlert(title: "No Movies Were Found.", message: "")
+                }
+            }
+        }
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int
+    {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
+    {
+        return _movies.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+    {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Identifiers.movieCellID, for: indexPath) as? MovieCVC
+        else
+        {
+            return MovieCVC()
+        }
+        
+        cell.movieObj = _movies[indexPath.item]
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize
+    {
+        return CGSize.init(width: collectionView.bounds.width / 2, height: collectionView.bounds.height * 0.45)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat
+    {
+        return 0
     }
     
 }

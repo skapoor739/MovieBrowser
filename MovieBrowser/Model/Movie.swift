@@ -7,11 +7,27 @@
 //
 
 import Foundation
+import Alamofire
 
 class Movie
 {
+    private enum NetworkURLS
+    {
+        
+        func getRequestURL()
+        {
+            
+        }
+    }
+    
+    private let _movieID: Int!
     private let _movieName: String!
     private let _imageURLString: String!
+    
+    var movieID: Int
+    {
+        return _movieID
+    }
     
     var movieName: String
     {
@@ -23,10 +39,18 @@ class Movie
         return _imageURLString
     }
     
-    init(movieName: String, imageURLString: String)
+    init(movieJSON: [String : Any]) throws
     {
-        self._movieName = movieName
-        self._imageURLString = imageURLString
+        if let id = movieJSON["id"] as? Int, let title = movieJSON["title"] as? String, let imagePath = movieJSON["poster_path"] as? String
+        {
+            self._movieID = id
+            self._movieName = title
+            self._imageURLString = imagePath
+        }
+        else
+        {
+            throw NetworkError.jsonError("Invalid JSON")
+        }
     }
     
     class func getMovies(completionHandler: @escaping (_ movieArray: [Movie]) -> ())

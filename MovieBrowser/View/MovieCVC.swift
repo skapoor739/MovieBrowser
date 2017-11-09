@@ -82,10 +82,10 @@ class MovieCVC: UICollectionViewCell
         contentView.ext_addSubView(view: movieNameLabel)
         
         NSLayoutConstraint.activate([
-            moviePosterIV.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
-            moviePosterIV.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 4),
-            moviePosterIV.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
-            moviePosterIV.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -4),
+                moviePosterIV.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+                moviePosterIV.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 4),
+                moviePosterIV.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+                moviePosterIV.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -4),
             ])
         
         NSLayoutConstraint.activate([

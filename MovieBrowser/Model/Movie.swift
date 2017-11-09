@@ -23,6 +23,9 @@ class Movie
     private let _movieID: Int!
     private let _movieName: String!
     private let _imageURLString: String!
+    private let _plotInfo: String!
+    private let _voteAverage: Double!
+    private let _releaseDate: Date!
     
     var movieID: Int
     {
@@ -39,13 +42,31 @@ class Movie
         return _imageURLString
     }
     
+    var plotInfo: String
+    {
+        return _plotInfo
+    }
+    
+    var voteAverage: Double
+    {
+        return _voteAverage
+    }
+    
+    var releaseDateString: String
+    {
+        return Date.getFormattedDateString(fromDate: _releaseDate)
+    }
+    
     init(movieJSON: [String : Any]) throws
     {
-        if let id = movieJSON["id"] as? Int, let title = movieJSON["title"] as? String, let imagePath = movieJSON["poster_path"] as? String
+        if let id = movieJSON["id"] as? Int, let title = movieJSON["title"] as? String, let imagePath = movieJSON["poster_path"] as? String, let plotInfo = movieJSON["overview"] as? String, let voteAverage = movieJSON["vote_average"] as? Double, let releaseDateString = movieJSON["release_date"] as? String, let releaseDate = Date.getDate(fromString: releaseDateString)
         {
             self._movieID = id
             self._movieName = title
             self._imageURLString = imagePath
+            self._plotInfo = plotInfo
+            self._voteAverage = voteAverage
+            self._releaseDate = releaseDate
         }
         else
         {

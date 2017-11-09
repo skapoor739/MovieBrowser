@@ -52,12 +52,23 @@ final class NetworkEngine
         static let baseURL = "https://api.themoviedb.org"
         static let apiKey = "?api_key=9d9bbdea25314385e94cb00f52a342e6"
         
+        
         case movieReq = "/3/discover/movie"
+        case movieSearch = "/3/search/movie"
         case page = "&page="
+        case queryString = "&query="
         
         static func getMovieReqURL(withPage page: Int = 1) -> URL?
         {
-            let urlString = URLManager.baseURL + URLManager.movieReq.rawValue + URLManager.apiKey + URLManager.page.rawValue
+            let urlString = URLManager.baseURL + URLManager.movieReq.rawValue + URLManager.apiKey + URLManager.page.rawValue + "\(page)"
+            
+            return try? urlString.asURL()
+        }
+        
+        static func getMovieSearchURL(searchString: String) -> URL?
+        {
+            let urlString = URLManager.baseURL + URLManager.movieSearch.rawValue + URLManager.apiKey + URLManager.queryString.rawValue + searchString.addingPercentEncoding( withAllowedCharacters: .urlHostAllowed)!
+
             
             return try? urlString.asURL()
         }
@@ -115,6 +126,69 @@ final class NetworkEngine
                 {
                     for movieJSON in movieResults
                     {
+                        print(movieJSON)
+                        if let movie = try? Movie(movieJSON: movieJSON)
+                        {
+                            movieArr.append(movie)
+                        }
+                    }
+                }
+                else
+                {
+                    networkErr = NetworkError.jsonError("Invalid JSON.")
+                }
+        }
+    }
+    
+    func searchMovies(searchString: String, completionHandler: @escaping (_ movies: [Movie], _ error: NetworkError?) -> ())
+    {
+        var networkErr: NetworkError? = nil
+        var movieArr: [Movie] = [Movie]()
+        
+        guard let url = URLManager.getMovieSearchURL(searchString: searchString)
+            else
+        {
+            completionHandler(movieArr, NetworkError.invalidURL("Invalid URL"))
+            return
+        }
+        
+        Alamofire.request(url, method: .get, parameters: nil, encoding: JSONEncoding.default, headers: nil).responseJSON
+            { [weak weakSelf = self] (responseResult) in
+                
+                defer { completionHandler(movieArr, networkErr) }
+                
+                guard let opSelf = weakSelf
+                    else
+                {
+                    networkErr = NetworkError.requestFailed("Unknown Error occured.")
+                    return
+                }
+                
+                if let error = responseResult.error
+                {
+                    networkErr = NetworkError.requestFailed(error.localizedDescription)
+                    return
+                }
+                
+                guard let data = responseResult.data
+                    else
+                {
+                    networkErr = NetworkError.noData("No Data Received.")
+                    return
+                }
+                
+                guard let jsonData = try? JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    else
+                {
+                    networkErr = NetworkError.jsonError("Error parsing json.")
+                    return
+                }
+                
+                if let movieData = jsonData as? [String : Any], let movieResults = movieData["results"] as? [[String : Any]]
+                {
+                    for movieJSON in movieResults
+                    {
+                        print(movieJSON)
                         if let movie = try? Movie(movieJSON: movieJSON)
                         {
                             movieArr.append(movie)

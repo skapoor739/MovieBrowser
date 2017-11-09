@@ -17,6 +17,18 @@ class MovieFeedVC: UIViewController, UICollectionViewDelegate, UICollectionViewD
         static let movieCellID = "movieCellID"
     }
     
+    private lazy var searchBarButton: UIBarButtonItem =
+    {
+        let button = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(searchTapped))
+        return button
+    }()
+    
+    private lazy var filterBarButton: UIBarButtonItem =
+    {
+        let button = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: #selector(filterTapped(_:)))
+        return button
+    }()
+    
     private lazy var collectionView: UICollectionView =
     {
         let layout = UICollectionViewFlowLayout()
@@ -61,6 +73,8 @@ class MovieFeedVC: UIViewController, UICollectionViewDelegate, UICollectionViewD
     private func configureNavItem()
     {
         self.navigationItem.title = "Movie Browser"
+        
+        self.navigationItem.rightBarButtonItems = [filterBarButton, searchBarButton]
     }
     
     private func registerCells()
@@ -131,6 +145,18 @@ class MovieFeedVC: UIViewController, UICollectionViewDelegate, UICollectionViewD
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath)
+    {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MovieCVC, let movie = cell.movieObj
+        else
+        {
+            return
+        }
+        
+        let movieDescVC = MovieDescVC(movie: movie)
+        self.navigationController?.pushViewController(movieDescVC, animated: true)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize
     {
         return CGSize.init(width: collectionView.bounds.width / 2, height: collectionView.bounds.height * 0.45)
@@ -141,5 +167,18 @@ class MovieFeedVC: UIViewController, UICollectionViewDelegate, UICollectionViewD
         return 0
     }
     
+    @objc
+    private func searchTapped(_ sender: UIBarButtonItem)
+    {
+        let searchVC = MovieSearchVC()
+        self.navigationController?.pushViewController(searchVC, animated: true)
+    }
+ 
+    @objc
+    private func filterTapped(_ sender: UIBarButtonItem)
+    {
+        let filterVC = MovieFilterVC()
+        self.navigationController?.pushViewController(filterVC, animated: true)
+    }
 }
 

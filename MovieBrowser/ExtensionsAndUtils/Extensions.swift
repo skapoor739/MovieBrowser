@@ -29,3 +29,21 @@ extension UIViewController
     }
     
 }
+
+extension Date
+{
+    static func getFormattedDateString(fromDate date: Date) -> String
+    {
+        let df = DateFormatter()
+        df.dateFormat = "dd, MMM yyyy"
+        return df.string(from: date)
+    }
+    
+    static func getDate(fromString dateString: String) -> Date?
+    {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        
+        return df.date(from: dateString)
+    }
+}

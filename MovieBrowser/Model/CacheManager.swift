@@ -21,11 +21,6 @@ class CacheManager
         _cache.setObject(value, forKey: key as AnyObject)
     }
     
-    func removeValue(forKey key: String)
-    {
-        _cache.removeObject(forKey: key as AnyObject)
-    }
-    
     func getValue(forKey key: String) -> AnyObject?
     {
         return _cache.object(forKey: key as AnyObject)

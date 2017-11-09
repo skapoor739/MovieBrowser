@@ -22,7 +22,6 @@ class MovieFeedVC: UIViewController
     override func loadView()
     {
         super.loadView()
-        
         setupView()
         configureNavItem()
     }
@@ -33,6 +32,12 @@ class MovieFeedVC: UIViewController
         
         self.view.ext_addSubView(view: collectionView)
         
+        NSLayoutConstraint.activate([
+                collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                collectionView.rightAnchor.constraint(equalTo: view.rightAnchor),
+                collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                collectionView.leftAnchor.constraint(equalTo: view.leftAnchor)
+            ])
         
     }
     

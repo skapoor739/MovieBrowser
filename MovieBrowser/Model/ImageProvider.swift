@@ -49,7 +49,6 @@ class ImageProvider
         }
         
         Alamofire.request(url, method: .get, parameters: nil, encoding: JSONEncoding.default, headers: nil).responseData
-            
             { [weak weakSelf = self] (responseResult) in
             
                 guard let opSelf = weakSelf
@@ -62,7 +61,7 @@ class ImageProvider
                 print(url)
                 if let error = responseResult.error
                 {
-                    print(error.localizedDescription, responseResult.response?.statusCode)
+                    print(error.localizedDescription)
                     return
                 }
                 

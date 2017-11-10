@@ -103,7 +103,7 @@ final class NetworkEngine
             
                 defer { completionHandler(movieArr, networkErr) }
                 
-                guard let opSelf = weakSelf
+                guard let _ = weakSelf
                 else
                 {
                     networkErr = NetworkError.requestFailed("Unknown Error occured.")

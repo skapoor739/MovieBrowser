@@ -218,6 +218,7 @@ class MovieFeedVC: UIViewController, UICollectionViewDelegate, UICollectionViewD
     
     func didSelectPredicate(viewCon: MovieFilterVC, type: MenuOption)
     {
+        _movies = []
         _selectedSortPredicate = type
         loadMovies(sortPredicate: type.apiReqString)
     }

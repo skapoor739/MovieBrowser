@@ -13,7 +13,7 @@ class MovieCVC: UICollectionViewCell
     private var moviePosterIV: UIImageView =
     {
         let iv = UIImageView()
-        iv.backgroundColor = .white
+        iv.backgroundColor = .darkGray
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         return iv
@@ -106,17 +106,24 @@ class MovieCVC: UICollectionViewCell
                 return
             }
             
-            if let image = image
+            let imagePath = opSelf.movieObj?.imageURLString ?? ""
+            
+            if imagePath == path
             {
-                opSelf.moviePosterIV.image = image
+                if let image = image
+                {
+                    opSelf.moviePosterIV.image = image
+                }
             }
         }
     }
 
     private func resetUI()
     {
-        movieNameLabel.text = ""
         moviePosterIV.image = nil
+        movieNameLabel.text = nil
+        
+        if movieObj != nil { movieObj = nil }
     }
     
     override func prepareForReuse()

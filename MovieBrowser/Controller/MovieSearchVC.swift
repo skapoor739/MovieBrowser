@@ -15,12 +15,19 @@ class MovieSearchVC: UIViewController, UISearchBarDelegate, UICollectionViewDele
         static let movieCellID = "movieCellID"
     }
     
+    private var _currentPage: Int = 1
+    
     private var _searchedMovies: [Movie] = []
     {
         didSet
         {
             collectionView.reloadData()
         }
+    }
+    
+    private var searchText: String
+    {
+        return searchBar.text ?? ""
     }
     
     private var _searchOperation: Operation = Operation()
@@ -126,6 +133,17 @@ class MovieSearchVC: UIViewController, UISearchBarDelegate, UICollectionViewDele
         self.navigationController?.pushViewController(movieDescVC, animated: true)
     }
     
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath)
+    {
+        let lastItem = _searchedMovies.count - 1
+        
+        if lastItem == indexPath.item
+        {
+            _currentPage += 1
+            executeSearch(searchText: searchText)
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize
     {
         return CGSize.init(width: collectionView.bounds.width / 2, height: collectionView.bounds.height * 0.50)
@@ -149,6 +167,7 @@ class MovieSearchVC: UIViewController, UISearchBarDelegate, UICollectionViewDele
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
     {
         searchBar.resignFirstResponder()
+        _searchedMovies = []
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String)
@@ -174,7 +193,7 @@ class MovieSearchVC: UIViewController, UISearchBarDelegate, UICollectionViewDele
     
     private func executeSearch(searchText: String)
     {
-        NetworkEngine.sharedEngine.searchMovies(searchString: searchText)
+        NetworkEngine.sharedEngine.searchMovies(searchString: searchText, pageID: _currentPage)
         { [weak weakSelf = self] (movies, error) in
             
             guard let opSelf = weakSelf
@@ -192,12 +211,12 @@ class MovieSearchVC: UIViewController, UISearchBarDelegate, UICollectionViewDele
             {
                 if !movies.isEmpty
                 {
-                    opSelf._searchedMovies = movies
+                    opSelf._searchedMovies.append(contentsOf: movies)
                     opSelf.collectionView.reloadData()
                 }
                 else
                 {
-//                    opSelf.showAlert(title: "No Movies Were Found.", message: "")
+                    opSelf.showAlert(title: "No more movies Were Found.", message: "")
                 }
             }
         }

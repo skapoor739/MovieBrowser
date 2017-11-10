@@ -47,6 +47,12 @@ final class NetworkEngine
 {
     static let sharedEngine = NetworkEngine()
     
+    struct SortKeys
+    {
+        static let SORT_BY_POPULAR = "popularity.desc"
+        static let SORT_BY_RATING = "vote_average.desc"
+    }
+    
     private enum URLManager: String
     {
         static let baseURL = "https://api.themoviedb.org"
@@ -57,17 +63,19 @@ final class NetworkEngine
         case movieSearch = "/3/search/movie"
         case page = "&page="
         case queryString = "&query="
+        case sortBy = "&sort_by="
         
-        static func getMovieReqURL(withPage page: Int = 1) -> URL?
+        static func getMoviesReqURL(withPage page: Int = 1, sortPredicateString: String = SortKeys.SORT_BY_RATING) -> URL?
         {
-            let urlString = URLManager.baseURL + URLManager.movieReq.rawValue + URLManager.apiKey + URLManager.page.rawValue + "\(page)"
+            let urlString = URLManager.baseURL + URLManager.movieReq.rawValue + URLManager.apiKey + URLManager.page.rawValue + "\(page)" + URLManager.sortBy.rawValue + sortPredicateString
             
             return try? urlString.asURL()
         }
         
-        static func getMovieSearchURL(searchString: String) -> URL?
+        static func getMoviesSearchURL(pageID: Int = 1, searchString: String) -> URL?
         {
-            let urlString = URLManager.baseURL + URLManager.movieSearch.rawValue + URLManager.apiKey + URLManager.queryString.rawValue + searchString.addingPercentEncoding( withAllowedCharacters: .urlHostAllowed)!
+            let urlString = URLManager.baseURL + URLManager.movieSearch.rawValue + URLManager.apiKey +
+                URLManager.page.rawValue + "\(pageID)" + URLManager.queryString.rawValue + searchString.addingPercentEncoding( withAllowedCharacters: .urlHostAllowed)!
 
             
             return try? urlString.asURL()
@@ -78,12 +86,12 @@ final class NetworkEngine
     
     private init() { }
     
-    func getMovies(pageID: Int, completionHandler: @escaping (_ movieArray: [Movie], _ error: NetworkError?) -> ())
+    func getMovies(pageID: Int, sortPredicate: String, completionHandler: @escaping (_ movieArray: [Movie], _ error: NetworkError?) -> ())
     {
         var networkErr: NetworkError? = nil
         var movieArr: [Movie] = [Movie]()
         
-        guard let url = URLManager.getMovieReqURL(withPage: pageID)
+        guard let url = URLManager.getMoviesReqURL(withPage: pageID, sortPredicateString: sortPredicate)
         else
         {
             completionHandler(movieArr, NetworkError.invalidURL("Invalid URL"))
@@ -140,12 +148,12 @@ final class NetworkEngine
         }
     }
     
-    func searchMovies(searchString: String, completionHandler: @escaping (_ movies: [Movie], _ error: NetworkError?) -> ())
+    func searchMovies(searchString: String, pageID: Int, completionHandler: @escaping (_ movies: [Movie], _ error: NetworkError?) -> ())
     {
         var networkErr: NetworkError? = nil
         var movieArr: [Movie] = [Movie]()
         
-        guard let url = URLManager.getMovieSearchURL(searchString: searchString)
+        guard let url = URLManager.getMoviesSearchURL(pageID: pageID, searchString: searchString)
             else
         {
             completionHandler(movieArr, NetworkError.invalidURL("Invalid URL"))
@@ -157,8 +165,8 @@ final class NetworkEngine
                 
                 defer { completionHandler(movieArr, networkErr) }
                 
-                guard let opSelf = weakSelf
-                    else
+                guard let _ = weakSelf
+                else
                 {
                     networkErr = NetworkError.requestFailed("Unknown Error occured.")
                     return

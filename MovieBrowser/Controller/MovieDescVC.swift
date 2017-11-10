@@ -238,9 +238,8 @@ class MovieDescVC: UIViewController
             UIView.transition(with: opSelf.moviePosterImageView, duration: 0.75, options: .transitionCrossDissolve, animations: {
                 opSelf.moviePosterImageView.image = image
             }, completion: { (success) in
-                
+                opSelf.blurBackgroundImage(img)
             })
-            opSelf.blurBackgroundImage(img)
         }
         
 
